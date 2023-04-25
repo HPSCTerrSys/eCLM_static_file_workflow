@@ -11,9 +11,10 @@ To follow the workflow it is necessary to clone:
 git clone https://github.com/ESCOMP/CTSM.git
 cd CTSM
 git checkout release-clm5.0
+git clone https://github.com/ESMCI/cime.git
 ```
 
-The repository contains folders analog to the ones of CTSM and cime, which you do not have to clone. So, you can add the files to the right folders.
+The repository contains folders analog to the ones of CTSM and cime. So, you can add the files to the right folders.
 
 ## Creation of gridfile
 
@@ -53,13 +54,13 @@ sbatch runscript_mkmapdata.sh
 
 ## Creation of domain files
 
-The CIME submodule under `cime/tools/mapping/gen_domain_files` generates the domain files for CLM. This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines. To compile it go to  the `src/` directory with the loaded modules ifort, imkl, netCDF and netCDF-Fortran. Then compile with 
+The CIME submodule under `cime/tools/mapping/gen_domain_files` generates the domain files for CLM. This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository. To compile it go to  the `src/` directory with the loaded modules ifort, imkl, netCDF and netCDF-Fortran. Then compile with 
 
 ```
 ifort -o ../gen_domain gen_domain.F90 -mkl -lnetcdff -lnetcdf
 ```
 
-After the compilation you can execute `gen_domain with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid. The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask. 
+After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid. The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask. 
 
 ```
 ./gen_domain -m $MAPFILE -o $GRIDNAME -l $GRIDNAME
