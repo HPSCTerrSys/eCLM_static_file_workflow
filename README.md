@@ -46,7 +46,7 @@ sbatch runscript_mkmapdata.sh
 
 ## Creation of domain files
 
-The CIME submodule under `cime/tools/mapping/gen_domain_files` generates the domain files for CLM. This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository. To compile it go to  the `src/` directory with the loaded modules ifort, imkl, netCDF and netCDF-Fortran. Then compile with 
+The CIME submodule under `./gen_domain_files/` generates the domain files for CLM. This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository. To compile it go to  the `src/` directory with the loaded modules ifort, imkl, netCDF and netCDF-Fortran. Then compile with 
 
 ```
 ifort -o ../gen_domain gen_domain.F90 -mkl -lnetcdff -lnetcdf
@@ -64,17 +64,20 @@ The created domain file will later be modified.
 
 ## Creation of surface file
 
-The surface creation tool is found under CTSM/tools/mksurfdata_map/. You have to compile it with make. The essential modules you need to load are intel and netCDF-Fortran. You still need to export(for jureca stage 2022 in this case)
-
-
-```
-export LIB_NETCDF=/p/software/jurecadc/stages/2022/software/netCDF-Fortran/4.5.3-GCCcore-11.2.0-serial/lib
-
-export INC_NETCDF=/p/software/jurecadc/stages/2022/software/netCDF-Fortran/4.5.3-GCCcore-11.2.0-serial/include
-```
-After compilation execute
+The surface creation tool is found under `./mksurfdata_map/`. You have to compile it with make. The essential modules you need to load are intel and netCDF-Fortran. You still need to export (e.g. for jsc machines)
 
 ```
+export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
+export INC_NETCDF=${EBROOTNETCDFMINFORTRAN}/include
+
+```
+After compilation modify corresponding pathes and execute 
+```
+export GRIDNAME=EUR-11
+export CDATE=`date +%y%m%d`
+export CSMDATA=/p/scratch/cslts/hartick1/CTSM/tools/mkmapdata/
+
+# generate surfdata
 ./mksurfdata.pl -r usrspec -usr_gname $GRIDNAME -usr_gdate $CDATE -l $CSMDATA -allownofile -y 2005 -hirespft
 ```
 to create a real domain with hires pft. Again, you need to have set a $GRIDNAME, a current date $DATE in yymmdd and the path where the raw data of CLM is stored $CSMDATA. You have to download the data from https://svn-ccsm-inputdata.cgd.ucar.edu/trunk/inputdata/lnd/clm2/rawdata/ if you have no access.
