@@ -2,20 +2,12 @@
 
 This repository shows the workflow for creating curvilinear surface and domain fields for eCLM simulations. The workflow follows the official clm-workflow but makes a few adaptions. 
 
-
-## Cloning the necessary repositories
-
-To follow the workflow it is necessary to clone:
+It is not necessary to clone CTSM and cime, as this workflow is independent. However, the basis is the clm5.0 release and there might be newer developments in the official repositories below
 
 ```
-git clone https://github.com/ESCOMP/CTSM.git
-cd CTSM
-git checkout release-clm5.0
-git clone https://github.com/ESMCI/cime.git
+https://github.com/ESCOMP/CTSM.git
+https://github.com/ESMCI/cime.git
 ```
-
-The repository contains folders analog to the ones of CTSM and cime. So, you can add the files to the right folders.
-
 ## Creation of gridfile
 
 First, we need to create a gridfile that describes our simulation domain. The repository contains the ncl-script `produce_scrip_from_griddata.ncl` that can create a SCRIP-file from a netcdf that contains the lat- and lon-center coordinates 
@@ -38,11 +30,11 @@ At the moment SCRIP generation is easiest with ncl. In `mkmapgrids/` you find pr
 ncl produce_scrip_from_griddata.ncl
 ```
 
-There should already be netcdf files for your grid or you can creatte them according to Niklas Wagner's workflow for creating static files.
+There should already be netcdf files for your grid or you can create them according to Niklas Wagner's workflow for creating static files.
  
 ## Creation of mapping files
 
-For the creation of the mapping files of CLM inputdata to our grid use mkmapdata/runscript_mkmapdata.sh. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script is tailored to JURECA but can easily changed to JUWELS. If you don't have access to the CLM mappingdata you have to download it. Use:
+For the creation of the mapping files of CLM inputdata to our grid use mkmapdata/runscript_mkmapdata.sh. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script can be used on JURECA and JUWELS but it is advisable to use the large memory partitions for larger domains. If you don't have access to the CLM mappingdata you have to download it. Use:
 
 ```
 wget --no-check-certificate -i  clm_mappingfiles.txt
@@ -72,7 +64,7 @@ The created domain file will later be modified.
 
 ## Creation of surface file
 
-The surface creation tool is found under CTSM/tools/mksurfdata_map/. You have to compile it with make. Replace mksurfdat.F90 with the version found in this repository. The only difference is that 'regional' is set as a standard compared to global. The essential modules you need to load are intel and netCDF-Fortran. You still need to export(for jureca stage 2022 in this case)
+The surface creation tool is found under CTSM/tools/mksurfdata_map/. You have to compile it with make. The essential modules you need to load are intel and netCDF-Fortran. You still need to export(for jureca stage 2022 in this case)
 
 
 ```
