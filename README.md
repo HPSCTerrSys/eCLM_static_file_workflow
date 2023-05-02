@@ -8,6 +8,15 @@ It is not necessary to clone CTSM and cime, as this workflow is independent. How
 https://github.com/ESCOMP/CTSM.git
 https://github.com/ESMCI/cime.git
 ```
+By sourcing the provided enviroment file
+
+```
+source jsc.2023_Intel.sh
+```
+
+the necessary compilations in this repository can be performed consistently. It also contains the export of necessary paths for netCDF.
+
+
 ## Creation of gridfile
 
 First, we need to create a gridfile that describes our simulation domain. The repository contains the ncl-script `produce_scrip_from_griddata.ncl` that can create a SCRIP-file from a netcdf that contains the lat- and lon-center coordinates 
