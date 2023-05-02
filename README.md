@@ -101,7 +101,8 @@ The created surface and domain file have negative longitudes that CLM5 does not 
 
 ## Creation of forcing data from ERA5
 
-A possible source of atmospheric forcing for CLM5 is ERA5. `prepare_ERA5.sh` prepares ERA as an input by changing names and modifying units. ERA5 has to be downloaded and regridded to your resolution beforehand.
+A possible source of atmospheric forcing for CLM5 is ERA5. The folder `mkforcing/` contains two scripts that assist the ERA5 retrieval. `download_ERA5.py` contains a prepared retrieval for the cdsapi python module. By modifying the two loops inside the script it is possible to download ERA5 for any timerange. However, the script requires that cdsapi is installed with an user specific key. More information about the installation can be found [here](https://cds.climate.copernicus.eu/api-how-to). 
+`prepare_ERA5.sh` prepares ERA5 as an input by changing names and modifying units. ERA5 has to be regridded to your resolution before the script can be used.
 
 
 
