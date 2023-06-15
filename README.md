@@ -21,7 +21,7 @@ the necessary compilations in this repository can be performed consistently. It 
 
 First, we need to create a gridfile that describes our simulation domain. The repository contains the ncl-script `produce_scrip_from_griddata.ncl` that can create a SCRIP-file from a netcdf that contains the lat- and lon-center coordinates 
 
-To use `mksurfdata.pl` regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
+To use `mksurfdata.pl`, regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
 
 - SCRIP 
 - ESMF-Mesh 
@@ -40,6 +40,18 @@ ncl produce_scrip_from_griddata.ncl
 ```
 
 There should already be netcdf files for your grid or you can create them according to Niklas Wagner's workflow for creating static files.
+
+Alternatively, you can use the python script `scrip_mesh.py`. Like the ncl script it can create SCRIP files including the calculation of corners. It takes command line arguments like this
+
+```
+python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
+``` 
+`--help` provides additional information.
+
+### ICON grid
+
+SCRIP files for the ICON grid are a special case because the usual calculation of corners is not usable. The best practice is to transform already existing ICON gridfiles to the SCRIP format. This can be done with the python script `ICON_SCRIP.py`. The script does not take command line arguments, you have to adapt the script to your filenames.
+
  
 ## Creation of mapping files
 
@@ -52,6 +64,10 @@ Then start the creation of the weights with
 ```
 sbatch runscript_mkmapdata.sh
 ```
+
+### ICON grid
+
+Experience has shown that conservative remapping does not always work for ICON grids. As an alternative you can adapt `runscript_mkmapdata.sh`. Change  `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script. 
 
 ## Creation of domain files
 
@@ -103,6 +119,18 @@ The created surface and domain file have negative longitudes that CLM5 does not 
 
 A possible source of atmospheric forcing for CLM5 is ERA5. The folder `mkforcing/` contains two scripts that assist the ERA5 retrieval. `download_ERA5.py` contains a prepared retrieval for the cdsapi python module. By modifying the two loops inside the script it is possible to download ERA5 for any timerange. However, the script requires that cdsapi is installed with an user specific key. More information about the installation can be found [here](https://cds.climate.copernicus.eu/api-how-to). 
 `prepare_ERA5.sh` prepares ERA5 as an input by changing names and modifying units. ERA5 has to be regridded to your resolution before the script can be used.
+
+`download_ERA5_v2.py`, `prepare_ERA5_v2.sh` and `extract_ERA5_meteocloud.sh` provide an alternative pathway. [This issue](https://gitlab.jsc.fz-juelich.de/HPSCTerrSys/tsmp-internal-development-tracking/-/issues/36) provides some details. Basically it is safer to extract the lowermost level of temperature, humidity and wind of ERA5 instead of taking 2m-values. The workflow goes like this:
+
+```
+bash extract_ERA5_meteocloud.sh
+python download_ERA5_v2.py
+regridding
+bash prepare_ERA5_v2.sh
+
+``` 
+Note: This worfklow is not fully tested.
+
 
 
 
