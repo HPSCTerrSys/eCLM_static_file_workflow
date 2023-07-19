@@ -20,8 +20,8 @@ grid_clm_lat = grid_pfl_lat.copy()
 
 grid_pfl_lon.name = "gpfl.lon"
 grid_pfl_lat.name = "gpfl.lat"
-ds_pfl_lon = xr.Dataset({grid_pfl_lon.name: (['x_pfl','y_pfl'], grid_pfl_lon.data)})
-ds_pfl_lat = xr.Dataset({grid_pfl_lat.name: (['x_pfl','y_pfl'], grid_pfl_lat.data)})
+ds_pfl_lon = xr.Dataset({grid_pfl_lon.name: (['x_gpfl','y_gpfl'], grid_pfl_lon.data)})
+ds_pfl_lat = xr.Dataset({grid_pfl_lat.name: (['x_gpfl','y_gpfl'], grid_pfl_lat.data)})
 ds_pfl_lon.to_netcdf('grids.nc', mode="w")
 ds_pfl_lat.to_netcdf('grids.nc', mode="a")
 
@@ -41,8 +41,8 @@ grid_pfl_lone = clm_3_5_source['LONE']
 grid_pfl_lonw = clm_3_5_source['LONW']
 pfl_lon_sta = xr.concat([grid_pfl_lone, grid_pfl_lonw, grid_pfl_lonw, grid_pfl_lone], dim='crn_gpfl')
 pfl_lon_sta.name = 'gpfl.clo'
-ds_pfl_lon_sta = xr.Dataset({pfl_lon_sta.name: (['crn_gpfl','x_pfl','y_pfl'], pfl_lon_sta.data)})
-pfl_lon_sta.to_netcdf('grids.nc', mode="a")
+ds_pfl_lon_sta = xr.Dataset({pfl_lon_sta.name: (['crn_gpfl','x_gpfl','y_gpfl'], pfl_lon_sta.data)})
+ds_pfl_lon_sta.to_netcdf('grids.nc', mode="a")
 
 grid_clm_lone = grid_pfl_lone.values.flatten() 
 grid_clm_lonw = grid_pfl_lonw.values.flatten()
@@ -58,8 +58,8 @@ grid_pfl_lats = clm_3_5_source['LATS']
 grid_pfl_latn = clm_3_5_source['LATN']
 pfl_lat_sta = xr.concat([grid_pfl_lats, grid_pfl_lats, grid_pfl_latn, grid_pfl_latn], dim='crn_gpfl')
 pfl_lat_sta.name = 'gpfl.cla'
-ds_pfl_lat_sta = xr.Dataset({pfl_lat_sta.name: (['crn_gpfl','x_pfl','y_pfl'], pfl_lat_sta.data)})
-pfl_lat_sta.to_netcdf('grids.nc', mode="a")
+ds_pfl_lat_sta = xr.Dataset({pfl_lat_sta.name: (['crn_gpfl','x_gpfl','y_gpfl'], pfl_lat_sta.data)})
+ds_pfl_lat_sta.to_netcdf('grids.nc', mode="a")
 
 grid_clm_lats = grid_pfl_lats.values.flatten()
 grid_clm_latn = grid_pfl_latn.values.flatten()
@@ -81,7 +81,7 @@ new_clm_mask.values[idx_zero] = 1
 new_clm_mask.values[idx_one] = 0
 
 new_clm_mask.name = 'gpfl.msk'
-new_clm_mask_ds = xr.Dataset({new_clm_mask.name: (['x_pfl','y_pfl'], new_clm_mask.data)})
+new_clm_mask_ds = xr.Dataset({new_clm_mask.name: (['x_gpfl','y_gpfl'], new_clm_mask.data)})
 new_clm_mask_ds.to_netcdf("masks.nc", mode="w")
 
 new_clm_mask2 = new_clm_mask_ds['gpfl.msk'].values.flatten()
@@ -104,7 +104,7 @@ new_cos_mask.values[idx_zero] = 1
 new_cos_mask.values[idx_one] = 0
 
 new_cos_mask.name = 'gcos.msk'
-new_cos_mask_ds = xr.Dataset({new_cos_mask.name: (['x_cos','y_cos'],new_cos_mask.data)})
+new_cos_mask_ds = xr.Dataset({new_cos_mask.name: (['x_gcos','y_gcos'],new_cos_mask.data)})
 new_cos_mask_ds.to_netcdf("masks.nc", mode="a")
 
 
@@ -113,8 +113,8 @@ grid_cos_lon = cosmo_source['LONGXY']
 grid_cos_lat = cosmo_source['LATIXY']
 grid_cos_lon.name = "gcos.lon"
 grid_cos_lat.name = "gcos.lat"
-ds_cos_lon = xr.Dataset({grid_cos_lon.name: (['x_cos','y_cos'], grid_cos_lon.data)})
-ds_cos_lat = xr.Dataset({grid_cos_lat.name: (['x_cos','y_cos'], grid_cos_lat.data)})
+ds_cos_lon = xr.Dataset({grid_cos_lon.name: (['x_gcos','y_gcos'], grid_cos_lon.data)})
+ds_cos_lat = xr.Dataset({grid_cos_lat.name: (['x_gcos','y_gcos'], grid_cos_lat.data)})
 ds_cos_lon.to_netcdf('grids.nc', mode="a")
 ds_cos_lat.to_netcdf('grids.nc', mode="a")
 
@@ -124,7 +124,7 @@ grid_cos_lonw = cosmo_source['LONW']
 
 cos_lon_sta = xr.concat([grid_cos_lone, grid_cos_lonw, grid_cos_lonw, grid_cos_lone], dim='crn_gcos')
 cos_lon_sta.name = 'gcos.clo'
-ds_cos_lon_sta = xr.Dataset({cos_lon_sta.name: (['crn_gcos','x_cos','y_cos'],cos_lon_sta.data)})
+ds_cos_lon_sta = xr.Dataset({cos_lon_sta.name: (['crn_gcos','x_gcos','y_gcos'],cos_lon_sta.data)})
 ds_cos_lon_sta.to_netcdf('grids.nc', mode="a")
 
 
@@ -133,7 +133,7 @@ grid_cos_latn = cosmo_source['LATN']
 
 cos_lat_sta = xr.concat([grid_cos_lats, grid_cos_lats, grid_cos_latn, grid_cos_latn], dim='crn_gcos')
 cos_lat_sta.name = 'gcos.cla'
-ds_cos_lon_sta = xr.Dataset({cos_lat_sta.name: (['crn_gcos','x_cos','y_cos'],cos_lat_sta.data)})
+ds_cos_lon_sta = xr.Dataset({cos_lat_sta.name: (['crn_gcos','x_gcos','y_gcos'],cos_lat_sta.data)})
 ds_cos_lon_sta.to_netcdf('grids.nc', mode="a")
 
 
