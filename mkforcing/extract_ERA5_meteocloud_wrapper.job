@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#SBATCH --job-name="wrapper_extract_ERA5_meteocloud"
+#SBATCH --nodes=1
+#SBATCH --ntasks=48
+#SBATCH --ntasks-per-node=48
+#SBATCH --output=mpiMPMD-out.%j
+#SBATCH --error=mpiMPMD-err.%j
+#SBATCH --time=00:30:00
+#SBATCH --partition=devel
+#SBATCH --mail-type=NONE
+#SBATCH --account=slts
+
+
+module purge
+ml Stages/2022  NVHPC/22.9  ParaStationMPI/5.5.0-1 CDO/2.0.2
+
+RUNDIR=$(pwd)
+
+cd $RUNDIR
+
+for year in `seq 2015 2020`; do
+ echo "process year "$year
+ srun --exclusive -n 1 ./extract_ERA5_meteocloud.sh $year &
+done
+
+#srun --exclusive -n 1 ./extract_ERA5_meteocloud.sh 2017 &
+#srun --exclusive -n 1 ./extract_ERA5_meteocloud.sh 2018 &
+#srun --exclusive -n 1 ./extract_ERA5_meteocloud.sh 2019 &
+
+
+wait
