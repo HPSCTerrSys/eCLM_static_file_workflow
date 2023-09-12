@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=48
 #SBATCH --output=mpiMPMD-out.%j
 #SBATCH --error=mpiMPMD-err.%j
-#SBATCH --time=00:30:00
+#SBATCH --time=02:00:00
 #SBATCH --partition=devel
 #SBATCH --mail-type=NONE
 #SBATCH --account=slts
