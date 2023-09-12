@@ -65,10 +65,13 @@ do
 
     # 
     cdo selvar,LONE,LATN,LONW,LATS,AREA,EDGEE,EDGEN,EDGEW,EDGES ${clm3grid} ${tmpdir}/${year}_${month}_temp11.nc
-    cdo -O merge ${tmpdir}/${year}_${month}_temp11.nc ${year}_${month}_tmp.nc ${year}_${month}.nc
+    cdo -O merge ${tmpdir}/${year}_${month}_temp11.nc ${year}_${month}_tmp.nc ${year}-${month}.nc
 
-    ncatted -O -h -a author,global,m,c,${author} ${year}_${month}.nc
-    ncatted -O -h -a contact,global,m,c,${email} ${year}_${month}.nc
+    ncrename -d rlon,lon ${year}-${month}.nc
+    ncrename -d rlat,lat ${year}-${month}.nc
+
+    ncatted -O -h -a author,global,m,c,${author} ${year}-${month}.nc
+    ncatted -O -h -a contact,global,m,c,${email} ${year}-${month}.nc
 
     # 
     rm ${year}_${month}_tmp.nc ${tmpdir}/${year}_${month}_temp11.nc
