@@ -22,11 +22,11 @@ export ESMFBIN_PATH="${EBROOTESMF}/bin/"
 ### adjust your gridfile here
 export GRIDNAME=EUR-11
 export CDATE=`date +%y%m%d`
-export GRIDFILE=/p/scratch/cesmtst/hartick1/SCRIP_EUR11.nc
+export GRIDFILE=/p/scratch/cslts/poll1/SCRIP_EUR11.nc
 ###
 
 ### Path to the raw files downloaded for the clm website
-rawpath="/p/scratch/cslts/hartick1/CTSM/tools/mkmapdata/lnd/clm2/mappingdata/grids/"
+rawpath="/p/scratch/cslts/poll1/rawdata/clm5/mkmapdata/"
 ###
 
 OUTPUT="$PWD"

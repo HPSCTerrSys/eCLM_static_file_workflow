@@ -1,4 +1,4 @@
-# EU_11_eCLM_curvilinear
+# eCLM static file workflow
 
 This repository shows the workflow for creating curvilinear surface and domain fields for eCLM simulations. The workflow follows the official clm-workflow but makes a few adaptions. 
 
@@ -48,7 +48,7 @@ python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat S
 ``` 
 `--help` provides additional information.
 
-### ICON grid
+### Unstructured grids (e.g. ICON grid)
 
 SCRIP files for the ICON grid are a special case because the usual calculation of corners is not usable. The best practice is to transform already existing ICON gridfiles to the SCRIP format. This can be done with the python script `ICON_SCRIP.py`. The script does not take command line arguments, you have to adapt the script to your filenames.
 
@@ -89,7 +89,7 @@ The created domain file will later be modified.
 
 ## Creation of surface file
 
-The surface creation tool is found under `./mksurfdata_map/`. You have to compile it with make. The essential modules you need to load are intel and netCDF-Fortran. You still need to export (e.g. for jsc machines)
+The surface creation tool is found under `./mksurfdata_map/`. You have to compile it with make in src-directory. The essential modules you need to load are intel and netCDF-Fortran. You still need to export (e.g. for jsc machines)
 
 ```
 export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
@@ -107,7 +107,7 @@ export CSMDATA=/p/scratch/cslts/hartick1/CTSM/tools/mkmapdata/
 ```
 to create a real domain with hires pft. Again, you need to have set a $GRIDNAME, a current date $DATE in yymmdd and the path where the raw data of CLM is stored $CSMDATA. You have to download the data from https://svn-ccsm-inputdata.cgd.ucar.edu/trunk/inputdata/lnd/clm2/rawdata/ if you have no access.
 
-Also make sure that mksurdata and mkmdapdata have the same parent directory.
+Also make sure that mksurdata and mkmapdata have the same parent directory.
 
 PS: There are many versions mksurfdata.pl in the CTSM github. Stick to the clm5-release version! Other versions use other mapping files and are not compatible with negative longitudes.
 
@@ -130,13 +130,4 @@ bash prepare_ERA5_v2.sh
 
 ``` 
 Note: This worfklow is not fully tested.
-
-
-
-
-
-
-
-
-
 
