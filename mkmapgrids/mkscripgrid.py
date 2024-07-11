@@ -26,29 +26,48 @@ def getenv_str(var_name, default):
     return value if value else default
 
 def fspan1up(fbegin, fend, number):
+    # Account for meridian crossing
+    if fend < fbegin:
+        fend +=360
+
     if number == 1:
         return np.array([(fbegin + fend) / 2.0])
     else:
         return np.linspace(fbegin, fend, number)
+
+def check_latitude(lat, var_name):
+    # Check if the latitude is within the valid range [-90, 90].
+    if lat < -90 or lat > 90:
+        raise ValueError(f"{var_name} must be in the range [-90, 90]. Got {lat}")
+
+def check_longitude(lon, var_name):
+    # Check if the longitude is within the valid range [0, 360].
+    if lon < 0 or lon >= 360:
+        raise ValueError(f"{var_name} must be in the range [0, 360). Got {lon}")
 
 # ===========================================================================================================
 # Set a few constants needed later
 cdate = datetime.now().strftime("%y%m%d")
 ldate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# IMPORTANT NOTE: EDIT THE FOLLOWING TO CUSTOMIZE.
+# IMPORTANT NOTE: EDIT THE FOLLOWING TO CUSTOMIZE OR PASS AS ENV VARIABLES.
 
 # Input resolution and position
 name = getenv_str("PTNAME", None) # Set your grid name here
 
-latS = getenv_double("S_LAT", 45.5098) # Set the south latitude here
-latN = getenv_double("N_LAT", 45.6098) # Set the north latitude here
-lonE = getenv_double("E_LON", 275.3362) # Set the east longitude here
-lonW = getenv_double("W_LON", 275.2362) # Set the west longitude here
+latS = getenv_double("S_LAT", 45.5098) # Set the south latitude here, valid values: [-90,90]
+latN = getenv_double("N_LAT", 45.6098) # Set the north latitude here, valid values: [-90,90]
+lonE = getenv_double("E_LON", 275.3362) # Set the east longitude here, valid values: [0,360]
+lonW = getenv_double("W_LON", 275.2362) # Set the west longitude here, valid values: [0,360]
 
 nx = getenv_int("NX", 1) # Set the number of grids along longitude lines here
 ny = getenv_int("NY", 1) # Set the number of grids along latitude lines here
 
+# Check for correct ranges
+check_latitude(latS, "S_LAT")
+check_latitude(latN, "N_LAT")
+check_longitude(lonE, "E_LON")
+check_longitude(lonW, "W_LON")
 
 imask = getenv_int("IMASK", 1)
 
@@ -56,7 +75,6 @@ print_str = getenv_str("PRINT", "TRUE")
 printn = True if print_str == "TRUE" else False
 
 outfilename = getenv_str("GRIDFILE", None)
-#gitdescribe = getenv_str("GITDES", os.popen("git describe").read().strip())
 
 if name is None:
     name = f"{nx}x{ny}pt_US-UMB"
@@ -73,11 +91,21 @@ os.system(f"/bin/rm -f {outfilename}")
 if printn:
     print(f"output file: {outfilename}")
 
-# Compute derived quantities
-delX = (lonE - lonW) / nx
+# Calculate raw difference for longitudes
+diffX = lonE - lonW
+
+# Adjust for wrap-around if lonE is less than lonW
+if lonE < lonW:
+    diffX += 360
+
+# Compute derived quantitites
+delX = diffX / nx
 delY = (latN - latS) / ny
 
 lonCenters = fspan1up((lonW + delX/2.0), (lonE - delX/2.0), nx)
+# Make sure longitudes are within [0,360] range
+lonCenters = np.where(lonCenters>360,lonCenters-360,lonCenters) 
+
 latCenters = fspan1up((latS + delY/2.0), (latN - delY/2.0), ny)
 
 lon = np.zeros((ny, nx))
@@ -133,7 +161,6 @@ with Dataset(outfilename, "w", format="NETCDF4") as nc:
     nc.title = f"SCRIP grid file for {name}"
     nc.history = f"{ldate}: create using mkscripgrid.py"
     nc.comment = "Ocean is assumed to non-existant at this point"
-    #nc.Version = "" #gitdescribe
 
 if printn:
     print("================================================================================================")
