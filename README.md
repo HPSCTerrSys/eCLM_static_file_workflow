@@ -27,13 +27,17 @@ To use `mksurfdata.pl`, regridding weights have to be created. For this the grid
 - ESMF-Mesh 
 - CF-convention-file
 
-SCRIP is a very old format not maintained anymore but is still the most effective solution. it can be easily created with curvilinear_to_SCRIP from NCL. Unfortunately, NCL is also not maintained anymore, so this could lead to problems in the future.
+SCRIP is a very old format not maintained anymore but is still the most effective solution. it can be easily created with `curvilinear_to_SCRIP` from NCL. Unfortunately, NCL is also not maintained anymore, so this could lead to problems in the future.
 
-ESMF-Mesh files are able to describe unstructured grids. A solution to create them is again found in a CTSM branch: `subset_mesh_dask` under `tools/site_and_regional/mesh_maker.py` I had to rewrite part of the script for it to accept 2d lat / lon. The main caveat is that the resulting surface files are in 1D which makes them harder to handle.
+ESMF-Mesh files are able to describe unstructured grids.
+You can create the gridfile with [a script](mkmapgrids/scrip_mesh.py).
+You need to install the Python packages numpy, xarray and dask-expr for this.
+The script was modified from `mesh_maker.py` from the CTSM repository to accept 2D lon / lat.
+The main caveat is that the resulting surface files are in 1D which makes them harder to handle.
 
 ESMF is able to basically handle any netcdf-file that follows the CF-conventions version 1.6 and includes lat /lon values and corners. Still, it is not the easy to correctly produce a correct description. I had the most success by mapping any grid to the desired grid by ncremap. NCO then produces lat and lon values and the vertices according to the CF-convention. However, I had to manually correct the grid corners at the most outer northside.
 
-At the moment SCRIP generation is easiest with ncl. In `mkmapgrids/` you find produce_scrip_from `griddata.ncl`. To use it you need a netcdf file with the lat/lon centers in 2D. It is not necessary to provide the corners because the internal routine of ncl seems to calculate them correctly for the later steps. Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execute:
+At the moment SCRIP generation is easiest with ncl. In `mkmapgrids/` you find `produce_scrip_from_griddata.ncl`. To use it you need a netcdf file with the lat/lon centers in 2D. It is not necessary to provide the corners because the internal routine of ncl seems to calculate them correctly for the later steps. Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execute:
 
 ```
 ncl produce_scrip_from_griddata.ncl
@@ -44,6 +48,7 @@ There should already be netcdf files for your grid or you can create them accord
 Alternatively, you can use the python script `scrip_mesh.py`. Like the ncl script it can create SCRIP files including the calculation of corners. It takes command line arguments like this
 
 ```
+pip3 install numpy argparse xarray dask-expr datetime pandas
 python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
 ``` 
 `--help` provides additional information.
@@ -55,7 +60,7 @@ SCRIP files for the ICON grid are a special case because the usual calculation o
  
 ## Creation of mapping files
 
-For the creation of the mapping files of CLM inputdata to our grid use mkmapdata/runscript_mkmapdata.sh. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script can be used on JURECA and JUWELS but it is advisable to use the large memory partitions for larger domains. If you don't have access to the CLM mappingdata you have to download it. Use:
+For the creation of the mapping files of CLM inputdata to our grid use `mkmapdata/runscript_mkmapdata.sh`. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script can be used on JURECA and JUWELS but it is advisable to use the large memory partitions for larger domains. If you don't have access to the CLM mappingdata you have to download it. Use:
 
 ```
 wget --no-check-certificate -i  clm_mappingfiles.txt
@@ -94,8 +99,8 @@ The surface creation tool is found under `./mksurfdata_map/`. You have to compil
 ```
 export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
 export INC_NETCDF=${EBROOTNETCDFMINFORTRAN}/include
-
 ```
+
 After compilation modify corresponding pathes and execute 
 ```
 export GRIDNAME=EUR-11
@@ -127,7 +132,7 @@ bash extract_ERA5_meteocloud.sh
 python download_ERA5_v2.py
 regridding
 bash prepare_ERA5_v2.sh
-
 ``` 
+
 Note: This worfklow is not fully tested.
 
