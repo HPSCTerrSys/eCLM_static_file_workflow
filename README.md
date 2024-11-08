@@ -8,6 +8,12 @@ It is not necessary to clone CTSM and cime, as this workflow is independent. How
 https://github.com/ESCOMP/CTSM.git
 https://github.com/ESMCI/cime.git
 ```
+
+For all steps below to work, you need several Python packages, which can be installed by
+```sh
+python3 -m pip install netcdf4 scipy numpy argparse xarray dask-expr datetime pandas
+```
+
 By sourcing the provided enviroment file
 
 ```
@@ -15,7 +21,6 @@ source jsc.2023_Intel.sh
 ```
 
 the necessary compilations in this repository can be performed consistently. It also contains the export of necessary paths for netCDF.
-
 
 ## Creation of gridfile
 
@@ -48,7 +53,6 @@ There should already be netcdf files for your grid or you can create them accord
 Alternatively, you can use the python script `scrip_mesh.py`. Like the ncl script it can create SCRIP files including the calculation of corners. It takes command line arguments like this
 
 ```
-pip3 install numpy argparse xarray dask-expr datetime pandas
 python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
 ``` 
 `--help` provides additional information.

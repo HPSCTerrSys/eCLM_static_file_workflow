@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ##source and credit :https://gist.github.com/uturuncoglu/4fdf7d4253b250dcf3cad2335651f162#file-esmf_mesh-py and credit
 
 ## Reworked to a simple generation of a SCRIP file for an existing ICON-grid definition.
