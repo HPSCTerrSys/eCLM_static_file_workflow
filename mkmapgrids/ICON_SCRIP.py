@@ -81,8 +81,8 @@ def main(argv):
     Main driver to write SCRIP grid represenation
     """
     # set defaults for command line arguments
-    ifile = 'EUR-R13B05_199920_grid_inclbrz_v2.nc'
-    ofile = 'ICON_SCRIP.nc'
+    ifile = ''
+    ofile = ''
     overwrite = False
     flip  = False
     latrev = False
