@@ -92,7 +92,56 @@ def main(argv):
     maskcal = False
     double = False
 
- 
+    # read command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ifile'    , help='Input grid file name', required=True)
+    parser.add_argument('--ofile'    , help='Output file name', required=True)
+    parser.add_argument('--overwrite', help='Overwrites output file, defaults to not', required=False, action='store_true')
+    parser.add_argument('--flip'     , help='Flip mask values. SCRIP requires 0/land and 1/ocean', required=False, action='store_true')
+    parser.add_argument('--latrev'   , help='Reverse latitude axis', required=False, action='store_true')
+    parser.add_argument('--latvar'   , help='Name of latitude variable, defults to ''lat''', required=False, nargs='?', const='lat')
+    parser.add_argument('--lonvar'   , help='Name of longitude variable, defaults to ''lon''', nargs='?', const='lon')
+    parser.add_argument('--maskvar'  , help='Name of mask variable, defaults to ''mask''', nargs='?', const='mask')
+    parser.add_argument('--maskcal'  , help='Calculate mask using fill value from variable defined in maskvar - 0/land and 1/ocean', required=False, action='store_true')
+    parser.add_argument('--double'   , help='Double precision output, defaults to float', required=False, action='store_true')
+    args = parser.parse_args()
+
+    if args.ifile:
+        ifile = args.ifile
+    if args.ofile:
+        ofile = args.ofile
+    if args.overwrite:
+        overwrite = args.overwrite
+    if args.flip:
+        flip = args.flip
+    if args.latrev:
+        latrev = args.latrev
+    if args.latvar:
+        latvar = args.latvar
+    if args.lonvar:
+        lonvar = args.lonvar
+    if args.maskvar:
+        maskvar = args.maskvar
+    if args.maskcal:
+        maskcal = args.maskcal
+        if not args.maskvar:
+            print('maskcal argument requires maskvar to calculate mask! exiting ...')
+            sys.exit()
+    if args.double:
+        double = args.double
+
+    # print out configuration
+    print("Configuration:")
+    print("ifile     = {}".format(ifile))
+    print("ofile     = {}".format(ofile))
+    print("overwrite = {}".format(overwrite))
+    print("flip      = {}".format(flip))
+    print("latrev    = {}".format(latrev))
+    print("latvar    = {}".format(latvar))
+    print("lonvar    = {}".format(lonvar))
+    print("maskvar   = {}".format(maskvar))
+    print("maskcal   = {} ({})".format(maskcal, maskvar))
+    print("double    = {}".format(double))
 
     # open file, transpose() fixes dimension ordering and mimic Fortran
     if os.path.isfile(ifile):

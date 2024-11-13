@@ -275,11 +275,11 @@ def main(argv):
     parser.add_argument('--addarea'  , help='Add area field to output file, defaults to not', required=False, action='store_true')
     parser.add_argument('--double'   , help='Double precision output, defaults to float', required=False, action='store_true')
     args = parser.parse_args()
-    
+
     if args.ifile:
         ifile = args.ifile
     if args.ofile:
-        ofile = args.ofile    
+        ofile = args.ofile
     if args.oformat:
         oformat = args.oformat
     if args.overwrite:

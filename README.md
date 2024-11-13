@@ -19,7 +19,7 @@ the necessary compilations in this repository can be performed consistently. It 
 
 ## Creation of gridfile
 
-First, we need to create a gridfile that describes our simulation domain. The repository contains the ncl-script `produce_scrip_from_griddata.ncl` that can create a SCRIP-file from a netcdf that contains the lat- and lon-center coordinates 
+First, we need to create a gridfile that describes our simulation domain.
 
 To use `mksurfdata.pl`, regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
 
@@ -27,7 +27,7 @@ To use `mksurfdata.pl`, regridding weights have to be created. For this the grid
 - ESMF-Mesh 
 - CF-convention-file
 
-SCRIP is a very old format not maintained anymore but is still the most effective solution. it can be easily created with `curvilinear_to_SCRIP` from NCL. Unfortunately, NCL is also not maintained anymore, so this could lead to problems in the future.
+SCRIP is a very old format not maintained anymore but is still the most effective solution.
 
 ESMF-Mesh files are able to describe unstructured grids.
 You can create the gridfile with [a script](mkmapgrids/scrip_mesh.py).
@@ -35,29 +35,26 @@ The Python packages numpy, xarray and dask-expr need to be available.
 They are loaded by the [environment file](jsc.2024_Intel.sh).
 The script was modified from `mesh_maker.py` from the CTSM repository to accept 2D lon / lat.
 The main caveat is that the resulting surface files are in 1D which makes them harder to handle.
-
-ESMF is able to basically handle any netcdf-file that follows the CF-conventions version 1.6 and includes lat /lon values and corners. Still, it is not the easy to correctly produce a correct description. I had the most success by mapping any grid to the desired grid by ncremap. NCO then produces lat and lon values and the vertices according to the CF-convention. However, I had to manually correct the grid corners at the most outer northside.
-
-At the moment SCRIP generation is easiest with ncl. In `mkmapgrids/` you find `produce_scrip_from_griddata.ncl`. To use it you need a netcdf file with the lat/lon centers in 2D. It is not necessary to provide the corners because the internal routine of ncl seems to calculate them correctly for the later steps. Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execute:
-
-```
-ncl produce_scrip_from_griddata.ncl
-```
-
-There should already be netcdf files for your grid or you can create them according to Niklas Wagner's workflow for creating static files.
-
-Alternatively, you can use the python script `scrip_mesh.py`. Like the ncl script it can create SCRIP files including the calculation of corners. It takes command line arguments like this
+The python script `scrip_mesh.py` can create SCRIP files including the calculation of corners.
+It takes command line arguments like this:
 
 ```
 python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
 ``` 
+
 `--help` provides additional information.
 
-### Unstructured grids (e.g. ICON grid)
+SCRIP files for the ICON grid are a special case because the usual calculation of corners is not usable.
+The best practice is to transform already existing ICON gridfiles to the SCRIP format.
+This can be done with the python script [`ICON_SCRIP.py`](mkmapgrids/ICON_SCRIP.py):
 
-SCRIP files for the ICON grid are a special case because the usual calculation of corners is not usable. The best practice is to transform already existing ICON gridfiles to the SCRIP format. This can be done with the python script `ICON_SCRIP.py`. The script does not take command line arguments, you have to adapt the script to your filenames.
+```
+python3 ICON_SCRIP.py --ifile EUR-R13B05_199920_grid_inclbrz_v2.nc --ofile EUR-R13B05_199920_grid_SCRIP.nc
+```
 
- 
+Input files can be found in the DETECT CentralDB below `/p/largedata2/detectdata/CentralDB/projects/z04/detect_grid_specs/`.
+Further information about the DETECT grid specification can be found [here](https://gitlab.jsc.fz-juelich.de/detect/detect_z03_z04/detect_grid_specification).
+
 ## Creation of mapping files
 
 For the creation of the mapping files of CLM inputdata to our grid use `mkmapdata/runscript_mkmapdata.sh`. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script can be used on JURECA and JUWELS but it is advisable to use the large memory partitions for larger domains. If you don't have access to the CLM mappingdata you have to download it. Use:
