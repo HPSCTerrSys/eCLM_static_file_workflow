@@ -9,11 +9,6 @@ https://github.com/ESCOMP/CTSM.git
 https://github.com/ESMCI/cime.git
 ```
 
-For all steps below to work, you need several Python packages, which can be installed by
-```sh
-python3 -m pip install netcdf4 scipy numpy argparse xarray dask-expr datetime pandas
-```
-
 By sourcing the provided enviroment file
 
 ```
@@ -36,7 +31,8 @@ SCRIP is a very old format not maintained anymore but is still the most effectiv
 
 ESMF-Mesh files are able to describe unstructured grids.
 You can create the gridfile with [a script](mkmapgrids/scrip_mesh.py).
-You need to install the Python packages numpy, xarray and dask-expr for this.
+The Python packages numpy, xarray and dask-expr need to be available.
+They are loaded by the [environment file](jsc.2023_Intel.sh).
 The script was modified from `mesh_maker.py` from the CTSM repository to accept 2D lon / lat.
 The main caveat is that the resulting surface files are in 1D which makes them harder to handle.
 
