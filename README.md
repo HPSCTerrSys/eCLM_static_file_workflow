@@ -30,9 +30,9 @@ To use `mksurfdata.pl`, regridding weights have to be created. For this the grid
 SCRIP is a very old format not maintained anymore but is still the most effective solution.
 
 ESMF-Mesh files are able to describe unstructured grids.
-You can create the gridfile with [a script](mkmapgrids/scrip_mesh.py).
+You can create the gridfile with the script [`scrip_mesh.py`](mkmapgrids/scrip_mesh.py).
 The Python packages numpy, xarray and dask-expr need to be available.
-They are loaded by the [environment file](jsc.2024_Intel.sh).
+They are loaded by the [environment file](jsc.2024_Intel.sh) (sourced above).
 The script was modified from `mesh_maker.py` from the CTSM repository to accept 2D lon / lat.
 The main caveat is that the resulting surface files are in 1D which makes them harder to handle.
 The python script `scrip_mesh.py` can create SCRIP files including the calculation of corners.
@@ -73,10 +73,13 @@ Experience has shown that conservative remapping does not always work for ICON g
 
 ## Creation of domain files
 
-The CIME submodule under `./gen_domain_files/` generates the domain files for CLM. This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository. To compile it go to  the `src/` directory with the loaded modules ifort, imkl, netCDF and netCDF-Fortran. Then compile with 
+The CIME submodule under `./gen_domain_files/` generates the domain files for CLM.
+This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository.
+To compile it go to  the `src/` directory with the loaded modules imkl, netCDF and netCDF-Fortran (all provided by `jsc.2024_Intel.sh`).
+Then compile with
 
 ```
-ifort -o ../gen_domain gen_domain.F90 -mkl -lnetcdff -lnetcdf
+gfortran -o ../gen_domain gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
 ```
 
 After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid. The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask. 
