@@ -80,55 +80,33 @@ def main(argv):
     """
     Main driver to write SCRIP grid represenation
     """
-    # set defaults for command line arguments
-    ifile = ''
-    ofile = ''
-    overwrite = False
-    flip  = False
-    latrev = False
-    latvar = 'clat'
-    lonvar = 'clon'
-    maskvar = 'mask'
-    maskcal = False
-    double = False
-
     # read command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--ifile'    , help='Input grid file name', required=True)
     parser.add_argument('--ofile'    , help='Output file name', required=True)
-    parser.add_argument('--overwrite', help='Overwrites output file, defaults to not', required=False, action='store_true')
-    parser.add_argument('--flip'     , help='Flip mask values. SCRIP requires 0/land and 1/ocean', required=False, action='store_true')
-    parser.add_argument('--latrev'   , help='Reverse latitude axis', required=False, action='store_true')
-    parser.add_argument('--latvar'   , help='Name of latitude variable, defults to ''lat''', required=False, nargs='?', const='lat')
-    parser.add_argument('--lonvar'   , help='Name of longitude variable, defaults to ''lon''', nargs='?', const='lon')
-    parser.add_argument('--maskvar'  , help='Name of mask variable, defaults to ''mask''', nargs='?', const='mask')
-    parser.add_argument('--maskcal'  , help='Calculate mask using fill value from variable defined in maskvar - 0/land and 1/ocean', required=False, action='store_true')
-    parser.add_argument('--double'   , help='Double precision output, defaults to float', required=False, action='store_true')
+    parser.add_argument('--overwrite', default=False, help='Overwrites output file, defaults to not', required=False, action='store_true')
+    parser.add_argument('--flip'     , default=False, help='Flip mask values. SCRIP requires 0/land and 1/ocean', required=False, action='store_true')
+    parser.add_argument('--latrev'   , default=False, help='Reverse latitude axis', required=False, action='store_true')
+    parser.add_argument('--latvar'   , default='clat', help='Name of latitude variable, defults to ''lat''', required=False, nargs='?', const='lat')
+    parser.add_argument('--lonvar'   , default='clon', help='Name of longitude variable, defaults to ''lon''', nargs='?', const='lon')
+    parser.add_argument('--maskvar'  , default='mask', help='Name of mask variable, defaults to ''mask''', nargs='?', const='mask')
+    parser.add_argument('--maskcal'  , default=False, help='Calculate mask using fill value from variable defined in maskvar - 0/land and 1/ocean', required=False, action='store_true')
+    parser.add_argument('--double'   , default=False, help='Double precision output, defaults to float', required=False, action='store_true')
     args = parser.parse_args()
 
-    if args.ifile:
-        ifile = args.ifile
-    if args.ofile:
-        ofile = args.ofile
-    if args.overwrite:
-        overwrite = args.overwrite
-    if args.flip:
-        flip = args.flip
-    if args.latrev:
-        latrev = args.latrev
-    if args.latvar:
-        latvar = args.latvar
-    if args.lonvar:
-        lonvar = args.lonvar
-    if args.maskvar:
-        maskvar = args.maskvar
-    if args.maskcal:
-        maskcal = args.maskcal
-        if not args.maskvar:
-            print('maskcal argument requires maskvar to calculate mask! exiting ...')
-            sys.exit()
-    if args.double:
-        double = args.double
+    ifile = args.ifile
+    ofile = args.ofile
+    overwrite = args.overwrite
+    flip = args.flip
+    latrev = args.latrev
+    latvar = args.latvar
+    lonvar = args.lonvar
+    maskvar = args.maskvar
+    maskcal = args.maskcal
+    if not args.maskvar:
+        print('maskcal argument requires maskvar to calculate mask! exiting ...')
+        sys.exit()
+    double = args.double
 
     # print out configuration
     print("Configuration:")
