@@ -21,6 +21,17 @@ the necessary compilations in this repository can be performed consistently. It 
 
 First, we need to create a gridfile that describes our simulation domain.
 
+At the moment SCRIP generation from **curvilinear grids** is easiest with NCL.
+The repository contains the NCL-script [`produce_scrip_from_griddata.ncl`](mkmapgrids/produce_scrip_from_griddata.ncl) that can create a SCRIP file from a netCDF that contains the lat- and lon-center coordinates.
+It is not necessary to provide the corners because the internal routine of NCL seems to calculate them correctly for the later steps.
+Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execute:
+
+```
+ncl produce_scrip_from_griddata.ncl
+```
+
+There should already be netCDF files for your grid or you can create them according to Niklas Wagner's workflow for creating static files.
+
 To use `mksurfdata.pl`, regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
 
 - SCRIP 
@@ -44,7 +55,7 @@ python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat S
 
 `--help` provides additional information.
 
-SCRIP files for the ICON grid are a special case because the usual calculation of corners is not usable.
+SCRIP files for **icosahedral grids**, like the ICON grid, are a special case because the usual calculation of corners is not usable.
 The best practice is to transform already existing ICON gridfiles to the SCRIP format.
 This can be done with the python script [`ICON_SCRIP.py`](mkmapgrids/ICON_SCRIP.py):
 
