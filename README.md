@@ -1,8 +1,10 @@
-# eCLM static file workflow
+# eCLM static file generator
 
-This repository shows the workflow for creating curvilinear surface and domain fields for eCLM simulations. The workflow follows the official clm-workflow but makes a few adaptions. 
+This repository shows how to generate curvilinear surface and domain fields for eCLM simulations.
+The generator follows the official CLM-workflow but makes a few adaptions.
 
-It is not necessary to clone CTSM and cime, as this workflow is independent. However, the basis is the clm5.0 release and there might be newer developments in the official repositories below
+It is not necessary to clone CTSM and cime, as this generator is independent.
+However, the basis is the CLM5.0 release and there might be newer developments in the official repositories below
 
 ```
 https://github.com/ESCOMP/CTSM.git
@@ -34,8 +36,8 @@ There should already be netCDF files for your grid or you can create them accord
 
 To use `mksurfdata.pl`, regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
 
-- SCRIP 
-- ESMF-Mesh 
+- SCRIP
+- ESMF-Mesh
 - CF-convention-file
 
 SCRIP is a very old format not maintained anymore but is still the most effective solution.
@@ -51,7 +53,7 @@ It takes command line arguments like this:
 
 ```
 python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
-``` 
+```
 
 `--help` provides additional information.
 
@@ -80,7 +82,7 @@ sbatch runscript_mkmapdata.sh
 
 ### ICON grid
 
-Experience has shown that conservative remapping does not always work for ICON grids. As an alternative you can adapt `runscript_mkmapdata.sh`. Change  `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script. 
+Experience has shown that conservative remapping does not always work for ICON grids. As an alternative you can adapt `runscript_mkmapdata.sh`. Change  `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script.
 
 ## Creation of domain files
 
@@ -93,7 +95,8 @@ Then compile with
 gfortran -o ../gen_domain gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
 ```
 
-After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid. The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask. 
+After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid.
+The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask.
 
 ```
 ./gen_domain -m $MAPFILE -o $GRIDNAME -l $GRIDNAME
@@ -112,7 +115,7 @@ export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
 export INC_NETCDF=${EBROOTNETCDFMINFORTRAN}/include
 ```
 
-After compilation modify corresponding pathes and execute 
+After compilation modify corresponding pathes and execute
 ```
 export GRIDNAME=EUR-11
 export CDATE=`date +%y%m%d`
@@ -123,9 +126,10 @@ export CSMDATA=/p/scratch/cslts/hartick1/CTSM/tools/mkmapdata/
 ```
 to create a real domain with hires pft. Again, you need to have set a $GRIDNAME, a current date $DATE in yymmdd and the path where the raw data of CLM is stored $CSMDATA. You have to download the data from https://svn-ccsm-inputdata.cgd.ucar.edu/trunk/inputdata/lnd/clm2/rawdata/ if you have no access.
 
-Also make sure that mksurdata and mkmapdata have the same parent directory.
+Also make sure that mksurfdata and mkmapdata have the same parent directory.
 
-PS: There are many versions mksurfdata.pl in the CTSM github. Stick to the clm5-release version! Other versions use other mapping files and are not compatible with negative longitudes.
+PS: There are many versions mksurfdata.pl in the CTSM github. Stick to the CLM5-release version!
+Other versions use other mapping files and are not compatible with negative longitudes.
 
 ## Modification of the surface and domain file
 
@@ -133,8 +137,14 @@ The created surface and domain file have negative longitudes that CLM5 does not 
 
 ## Creation of forcing data from ERA5
 
-A possible source of atmospheric forcing for CLM5 is ERA5. The folder `mkforcing/` contains two scripts that assist the ERA5 retrieval. `download_ERA5.py` contains a prepared retrieval for the cdsapi python module. By modifying the two loops inside the script it is possible to download ERA5 for any timerange. However, the script requires that cdsapi is installed with an user specific key. More information about the installation can be found [here](https://cds.climate.copernicus.eu/api-how-to). 
-`prepare_ERA5.sh` prepares ERA5 as an input by changing names and modifying units. ERA5 has to be regridded to your resolution before the script can be used.
+A possible source of atmospheric forcing for CLM5 is ERA5.
+The folder `mkforcing/` contains two scripts that assist the ERA5 retrieval.
+- `download_ERA5.py` contains a prepared retrieval for the cdsapi python module.
+By modifying the two loops inside the script it is possible to download ERA5 for any timerange.
+However, the script requires that cdsapi is installed with an user specific key.
+More information about the installation can be found [here](https://cds.climate.copernicus.eu/api-how-to).
+- `prepare_ERA5.sh` prepares ERA5 as an input by changing names and modifying units.
+ERA5 has to be regridded to your resolution before the script can be used.
 
 `download_ERA5_v2.py`, `prepare_ERA5_v2.sh` and `extract_ERA5_meteocloud.sh` provide an alternative pathway. [This issue](https://gitlab.jsc.fz-juelich.de/HPSCTerrSys/tsmp-internal-development-tracking/-/issues/36) provides some details. Basically it is safer to extract the lowermost level of temperature, humidity and wind of ERA5 instead of taking 2m-values. The workflow goes like this:
 
@@ -143,7 +153,7 @@ bash extract_ERA5_meteocloud.sh
 python download_ERA5_v2.py
 regridding
 bash prepare_ERA5_v2.sh
-``` 
+```
 
 Note: This worfklow is not fully tested.
 
