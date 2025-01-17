@@ -23,7 +23,10 @@ the necessary compilations in this repository can be performed consistently. It 
 
 First, we need to create a gridfile that describes our simulation domain.
 
-At the moment SCRIP generation from **curvilinear grids** is easiest with NCL.
+At the moment SCRIP generation from **curvilinear grids** can be done and is tested to work with the NCAR Command Language (NCL), even though it is [deprecated](https://www.ncl.ucar.edu/open_letter_to_ncl_users.shtml).
+NCL can be installed through Conda.
+If you have no Conda yet on your system, you can install it, including the conda-forge channel, following [this guide](https://github.com/conda-forge/miniforge?tab=readme-ov-file#unix-like-platforms-macos--linux).
+Then follow [this guide](https://yonsci.github.io/yon_academic/portfolio/portfolio-9/#installing-ncl) to install NCL.
 The repository contains the NCL-script [`produce_scrip_from_griddata.ncl`](mkmapgrids/produce_scrip_from_griddata.ncl) that can create a SCRIP file from a netCDF that contains the lat- and lon-center coordinates.
 It is not necessary to provide the corners because the internal routine of NCL seems to calculate them correctly for the later steps.
 Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execute:
@@ -32,7 +35,7 @@ Adapt the input in `produce_scrip_from_griddata.ncl` to your gridfile and execut
 ncl produce_scrip_from_griddata.ncl
 ```
 
-There should already be netCDF files for your grid or you can create them according to Niklas Wagner's workflow for creating static files.
+For [TSMP2](https://github.com/HPSCTerrSys/TSMP2), on a 0.11 degree (12 km) resolution, you probably want to use [the 450x438 gridfile including boundary relaxation zone](https://gitlab.jsc.fz-juelich.de/detect/detect_z03_z04/detect_grid_specification/-/blob/main/grids/EUR-11_450x438_grid_inclbrz13gp_v2.nc) as the input file (`f` in the script).
 
 To use `mksurfdata.pl`, regridding weights have to be created. For this the grid has to be properly defined in one of the following formats:
 
