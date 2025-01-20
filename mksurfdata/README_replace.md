@@ -19,7 +19,7 @@ Replacement of domain file:
 This script can be also used to modify the OASIS mask (optional).
 
 Replacement of surface file:
-`replace_surffile2tsmp.r`
+`replace_surdat2tsmp.r`
 
 Replacement of topography file:
 `replace_topo2tsmp.r`
