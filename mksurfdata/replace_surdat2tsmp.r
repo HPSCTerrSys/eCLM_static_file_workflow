@@ -16,7 +16,7 @@ fnameraw <- paste0(dirname,"eclm/static/surfdata_ICON-11_hist_16pfts_Irrig_CMIP6
 #filenameref <- "/p/scratch/cslts/poll1/sim/euro-cordex/tsmp2_workflow-engine/dta/geo/eclm/static/surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302.nc"
 
 # New/Modified eCLM surface file
-filenamenew <- paste0(dirname,"eclm/static/surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcv-pfsoil.nc")
+filenamenew <- paste0(dirname,"eclm/static/surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil.nc")
 
 # soil characteristics
 lsoil <- T 
@@ -84,6 +84,12 @@ if (lhomsoil) {
 # indicator_new <- indicator_org
 # indicator_new[,1] = 8
 # write.table(indicator_new, file=filenew, row.names=FALSE, col.names=TRUE, sep="\n")
+
+###
+# SLOPES
+###
+
+#TODO
 
 ### 
 # Land Cover
@@ -210,7 +216,10 @@ if (llc) {
 # 12 	C_3 arctic grass
 # 13 	C_3 grass
 # 14 	C_4 grass
- 
+
+#> (colSums(colSums(pct_urban)))
+#[1] 4.280616e+01 1.853037e+05 1.538387e+06
+
 # globecover2009 to CLM PFT mapping and weights
  gcv09pftmap <- list(
   c(16), # 1  irrigated croplands
@@ -276,7 +285,7 @@ if (llc) {
 	pct_crop_new[ii] = pct_crop_new[ii] + ilupct
         pct_cft_new[ii,ipft] = pct_cft_new[ii,ipft] + ilupct
      } else if (pftl[ipft] == 18 ){
-        pct_urban_new[ii,2] <- pct_urban_new[ii,2] + ilupct
+        pct_urban_new[ii,3] <- pct_urban_new[ii,3] + ilupct
      } else if (pftl[ipft] == 19 ){
 	pct_wetland_new[ii] = pct_wetland_new[ii] + ilupct # might change to lake?
      } else if (pftl[ipft] == 20 ){
@@ -315,8 +324,99 @@ if (llc) {
   tk_wall_ref <- ncvar_get(ff,"TK_WALL")
   cv_roof_ref <- ncvar_get(ff,"CV_ROOF")
   ht_roof_ref <- ncvar_get(ff,"HT_ROOF")
-  canyon_hwr <- ncvar_get(ff,"CANYON_HWR")
+  canyon_hwr_ref <- ncvar_get(ff,"CANYON_HWR")
+  em_improad_ref <- ncvar_get(ff,"EM_IMPROAD")
+  em_perroad_ref <- ncvar_get(ff,"EM_PERROAD")
+  em_roof_ref <- ncvar_get(ff,"EM_ROOF")
+  em_wall_ref <- ncvar_get(ff,"EM_WALL")
+  t_building_min_ref <- ncvar_get(ff,"T_BUILDING_MIN")
+  wind_hgt_canyon_ref <- ncvar_get(ff,"WIND_HGT_CANYON")
+  alb_roof_dir_ref <- ncvar_get(ff,"ALB_ROOF_DIR")
+  cv_wall_ref <- ncvar_get(ff,"CV_WALL")
+  alb_roof_dir_ref <- ncvar_get(ff,"ALB_ROOF_DIR")
+  alb_roof_dif_ref <- ncvar_get(ff,"ALB_ROOF_DIF")
+  alb_wall_dir_ref <- ncvar_get(ff,"ALB_WALL_DIR")
+  alb_wall_dif_ref <- ncvar_get(ff,"ALB_WALL_DIF")
+  wtlunit_roof_ref <- ncvar_get(ff,"WTLUNIT_ROOF")
   nc_close(ff)
+
+  # calculate median of every column
+  medianarrN0 <- function(var) {
+    if (length(dim(var))==1) {
+      return(array(median(var[which(var!=0)]),dim(var)))
+    } else if (length(dim(var))==2){
+      tmp <- array(NA,dim(var))
+      for (ii in 1:dim(var)[2]){
+	tmp[,ii] = median(var[which(var[,ii]!=0),ii])
+      } # for ii
+      return(tmp)
+    } else {
+      tmp <- array(NA,dim(var))
+      for (ii in 1:dim(var)[2]){
+       for (jj in 1:dim(var)[3]){
+        tmp[,ii,jj] = median(var[which(var[,ii,jj]!=0),ii,jj])
+       } # for jj
+      } # for ii
+      return(tmp)
+    } # if dim
+  } # function
+
+  thick_roof_mod <- medianarrN0(thick_roof_ref)
+  thick_wall_mod <- medianarrN0(thick_wall_ref)
+  wtroad_perv_mod <- medianarrN0(wtroad_perv_ref)
+  alb_improad_dir_mod <- medianarrN0(alb_improad_dir_ref)
+  alb_improad_dif_mod <- medianarrN0(alb_improad_dif_ref)
+  alb_perroad_dir_mod <- medianarrN0(alb_perroad_dir_ref)
+  alb_perroad_dif_mod <- medianarrN0(alb_perroad_dif_ref)
+  alb_wall_dif_mod <- medianarrN0(alb_wall_dif_ref)
+  tk_roof_mod <- medianarrN0(tk_roof_ref)
+  tk_wall_mod <- medianarrN0(tk_wall_ref)
+  cv_roof_mod <- medianarrN0(cv_roof_ref)
+  ht_roof_mod <- medianarrN0(ht_roof_ref)
+  canyon_hwr_mod <- medianarrN0(canyon_hwr_ref)
+  em_improad_mod <- medianarrN0(em_improad_ref)
+  em_perroad_mod <- medianarrN0(em_perroad_ref)
+  em_roof_mod <- medianarrN0(em_roof_ref)
+  em_wall_mod <- medianarrN0(em_wall_ref)
+  t_building_min_mod <- medianarrN0(t_building_min_ref)
+  wind_hgt_canyon_mod <- medianarrN0(wind_hgt_canyon_ref)
+  alb_roof_dir_mod <- medianarrN0(alb_roof_dir_ref)
+  cv_wall_mod <- medianarrN0(cv_wall_ref)
+  alb_roof_dir_mod <- medianarrN0(alb_roof_dir_ref)
+  alb_roof_dif_mod <- medianarrN0(alb_roof_dif_ref)
+  alb_wall_dir_mod <- medianarrN0(alb_wall_dir_ref)
+  alb_wall_dif_mod <- medianarrN0(alb_wall_dif_ref)
+  wtlunit_roof_mod <- medianarrN0(wtlunit_roof_ref)
+
+  ff <- nc_open(filenamenew,write=TRUE)
+  buffer <- ncvar_put(ff,"THICK_ROOF",thick_roof_mod)
+  buffer <- ncvar_put(ff,"THICK_WALL",thick_wall_mod)
+  buffer <- ncvar_put(ff,"WTROAD_PERV",wtroad_perv_mod)
+  buffer <- ncvar_put(ff,"ALB_IMPROAD_DIR",alb_improad_dir_mod)
+  buffer <- ncvar_put(ff,"ALB_IMPROAD_DIF",alb_improad_dif_mod)
+  buffer <- ncvar_put(ff,"ALB_PERROAD_DIR",alb_perroad_dir_mod)
+  buffer <- ncvar_put(ff,"ALB_PERROAD_DIF",alb_perroad_dif_mod)
+  buffer <- ncvar_put(ff,"ALB_WALL_DIF",alb_wall_dif_mod)
+  buffer <- ncvar_put(ff,"TK_ROOF",tk_roof_mod)
+  buffer <- ncvar_put(ff,"TK_WALL",tk_wall_mod)
+  buffer <- ncvar_put(ff,"CV_ROOF",cv_roof_mod)
+  buffer <- ncvar_put(ff,"HT_ROOF",ht_roof_mod)
+  buffer <- ncvar_put(ff,"CANYON_HWR",canyon_hwr_mod)
+  buffer <- ncvar_put(ff,"EM_IMPROAD",em_improad_mod)
+  buffer <- ncvar_put(ff,"EM_PERROAD",em_perroad_mod)
+  buffer <- ncvar_put(ff,"EM_ROOF",em_roof_mod)
+  buffer <- ncvar_put(ff,"EM_WALL",em_wall_mod)
+  buffer <- ncvar_put(ff,"T_BUILDING_MIN",t_building_min_mod)
+  buffer <- ncvar_put(ff,"WIND_HGT_CANYON",wind_hgt_canyon_mod)
+  buffer <- ncvar_put(ff,"ALB_ROOF_DIR",alb_roof_dir_mod)
+  buffer <- ncvar_put(ff,"CV_WALL",cv_wall_mod)
+  buffer <- ncvar_put(ff,"ALB_ROOF_DIR",alb_roof_dir_mod)
+  buffer <- ncvar_put(ff,"ALB_ROOF_DIF",alb_roof_dif_mod)
+  buffer <- ncvar_put(ff,"ALB_WALL_DIR",alb_wall_dir_mod)
+  buffer <- ncvar_put(ff,"ALB_WALL_DIF",alb_wall_dif_mod)
+  buffer <- ncvar_put(ff,"WTLUNIT_ROOF",wtlunit_roof_mod)
+  nc_close(ff)
+
  } # if lurb
 
  } # lhomllc
