@@ -35,6 +35,9 @@ lhomllc <- F
 fnamerefext <-  paste0(dirname,"icon/static/external_parameter_icon_europe011_DOM01_tiles.nc")
 lurb <- T # modify urban parameter
 
+# landuseparameter
+l_pftparam = T
+
 ########
 ## Start of Program
 ########
@@ -326,6 +329,57 @@ if (llc) {
 
  # range check
  print(paste0("Rangecheck landunits: ",range(pct_natveg_new+pct_crop_new+pct_wetland_new+pct_lake_new+pct_urban_new[,1]+pct_urban_new[,2]+ pct_urban_new[,3]+pct_glacier_new)))
+
+# take lai from reference
+# code from ICON
+#  ext_data%atm%laifac_t(jc,jb,jt) = &
+#            (wfac*ext_data%atm%laimax_lcc(ilu) + (1._wp-wfac)*laimin(ilu))/MAX(0.01_wp,ext_data%atm%laimax_lcc(ilu))
+# lai_min_terra =  c(0.5, 0.5, 0.7, 0.7, 5.0, 0.5, 0.5, 3.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.0, 0.3, 5.0, 5.0, 1.0, 1.0, 0.2, 0.0, 0.0, 0.0)
+ if (l_pftparam) {
+  print("replace pft parameter (can take time)")
+  # read in variables
+  ff <- nc_open(fnameraw)
+  monthly_lai <- ncvar_get(ff,"MONTHLY_LAI")
+  monthly_sai <- ncvar_get(ff,"MONTHLY_SAI")
+  monthly_hgt_top <- ncvar_get(ff,"MONTHLY_HEIGHT_TOP")
+  monthly_hgt_bot <- ncvar_get(ff,"MONTHLY_HEIGHT_BOT")
+  nc_close(ff)
+#
+  # replace zeros with meaningful values
+  # unfortunately the pct_natveg is not meaningful in reference
+  # if meaningful rewrite this function
+  pft_replacezeros <- function(var) {
+    var_new <- var
+    var_new[which(var==0)] <- NA
+    var_new[,1,] <- 0 # bare soil
+    # need improvement
+    meanvar <- array(NA,dim(var_new)[2:3])
+    for (ipft in 2:dim(var_new)[2]){
+     meanvar[ipft,] <- colMeans(var_new[,ipft,],na.rm=T)
+     for (ii in 1:dim(var_new)[1]){
+      ind_var <- which(is.na(var_new[ii,ipft,]))
+      if (length(ind_var)!=0){
+	var_new[ii,ipft,] <- meanvar[ipft,]
+      }
+     } # for ii
+    } # for ipft
+#    ind_var <- which(is.na(var_new), arr.ind =T)
+    return(var_new)
+  } # function
+
+  monthly_lai_new <- pft_replacezeros(monthly_lai)
+  monthly_sai_new <- pft_replacezeros(monthly_sai)
+  monthly_hgt_top_new <- pft_replacezeros(monthly_hgt_top)
+  monthly_hgt_bot_new <- pft_replacezeros(monthly_hgt_bot)
+
+  ff <- nc_open(filenamenew,write=TRUE)
+  buffer <- ncvar_put(ff,"MONTHLY_LAI",monthly_lai_new)
+  buffer <- ncvar_put(ff,"MONTHLY_SAI",monthly_sai_new)
+  buffer <- ncvar_put(ff,"MONTHLY_HEIGHT_TOP",monthly_hgt_top_new)
+  buffer <- ncvar_put(ff,"MONTHLY_HEIGHT_BOT",monthly_hgt_bot_new)
+  nc_close(ff)
+
+ } # l_pftparam
 
  #
  if (lurb){
