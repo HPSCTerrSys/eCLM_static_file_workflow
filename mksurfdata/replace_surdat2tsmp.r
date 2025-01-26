@@ -62,7 +62,6 @@ if (lhomsoil) {
  pct_sand_mod[which(is.na(pct_sand))] <- 0
  pct_sand_mod[which(pct_sand > 100)] <- 100
 } # lhomsoil
-} # lsoil
 
 ## Save files
 # copy files pct_sand_mod <- array(30,dim(pct_sand))
@@ -75,6 +74,10 @@ if (lhomsoil) {
  ncvar_put(ff,"PCT_CLAY",pct_clay_mod)
  ncvar_put(ff,"PCT_SAND",pct_sand_mod)
  nc_close(ff)
+
+ print("Wrote soil characteristics into surface-file")
+
+} # lsoil
 
 # Inidicator code snippet ParFlow
 # ## ParFlow3
@@ -109,8 +112,8 @@ if (llc) {
  pct_cft <- ncvar_get(ff,"PCT_CFT")
  nc_close(ff)
 
- # range check
- print(range(pct_natveg+pct_crop+pct_wetland+pct_lake+pct_urban[,1]+pct_urban[,2]+ pct_urban[,3]+pct_glacier))
+# # range check
+# print(range(pct_natveg+pct_crop+pct_wetland+pct_lake+pct_urban[,1]+pct_urban[,2]+ pct_urban[,3]+pct_glacier))
 
  # check
  pct_cft_tmp <- array(NA,c(dim(pct_cft)[2],dim(pct_cft)[1]))
@@ -121,8 +124,8 @@ if (llc) {
   for (ipft in 1:dim(pct_nat_pft)[2]) {
    pct_nat_pft_tmp[ipft,] <- pct_nat_pft[,ipft]
  }
- print(range(colSums(pct_cft_tmp)))
- print(range(colSums(pct_nat_pft_tmp)))
+# print(range(colSums(pct_cft_tmp)))
+# print(range(colSums(pct_nat_pft_tmp)))
 
  if (lhomllc){
   # initialize
@@ -220,6 +223,9 @@ if (llc) {
 #> (colSums(colSums(pct_urban)))
 #[1] 4.280616e+01 1.853037e+05 1.538387e+06
 
+# > unique(urban_region_id_ref)
+# [1]  0 12 19 22  5 15 16 32 28 33 11
+
 # globecover2009 to CLM PFT mapping and weights
  gcv09pftmap <- list(
   c(16), # 1  irrigated croplands
@@ -280,10 +286,10 @@ if (llc) {
      ilupct <- 100 * luclass_ref[ii,indgcv[igcv]] * wgtl[ipft]
      if (pftl[ipft] <= 15) {
 	pct_natveg_new[ii] = pct_natveg_new[ii] + ilupct
-        pct_nat_pft_new[ii,ipft] = pct_nat_pft_new[ii,ipft] + ilupct
+        pct_nat_pft_new[ii,pftl[ipft]] = pct_nat_pft_new[ii,pftl[ipft]] + ilupct
      } else if (pftl[ipft] == 16 || pftl[ipft] == 17 ){
 	pct_crop_new[ii] = pct_crop_new[ii] + ilupct
-        pct_cft_new[ii,ipft] = pct_cft_new[ii,ipft] + ilupct
+        pct_cft_new[ii,pftl[ipft]-15] = pct_cft_new[ii,pftl[ipft]-15] + ilupct
      } else if (pftl[ipft] == 18 ){
         pct_urban_new[ii,3] <- pct_urban_new[ii,3] + ilupct
      } else if (pftl[ipft] == 19 ){
@@ -304,14 +310,28 @@ if (llc) {
      pct_urban_new[ii,] = pct_urban_new[ii,] * fac
      pct_glacier_new[ii] = pct_glacier_new[ii] *fac
    } # if tstsum
+   isumcft <- sum(pct_cft_new[ii,])
+   if (isumcft == 0){
+     pct_cft_new[ii,1] <- 100
+   } else {
+     pct_cft_new[ii,] <- pct_cft_new[ii,]/isumcft*100
+   } # if sumcft
+   isumpft <- sum(pct_nat_pft_new[ii,])
+   if (isumpft == 0){
+     pct_nat_pft_new[ii,1] <- 100
+   } else {
+     pct_nat_pft_new[ii,] <- pct_nat_pft_new[ii,]/isumcft*100
+   } # if sumpft
  } # for ii
 
  # range check
- print(range(pct_natveg_new+pct_crop_new+pct_wetland_new+pct_lake_new+pct_urban_new[,1]+pct_urban_new[,2]+ pct_urban_new[,3]+pct_glacier_new))
+ print(paste0("Rangecheck landunits: ",range(pct_natveg_new+pct_crop_new+pct_wetland_new+pct_lake_new+pct_urban_new[,1]+pct_urban_new[,2]+ pct_urban_new[,3]+pct_glacier_new)))
 
  #
  if (lurb){
+  print("replace urban parameter")
   ff <- nc_open(fnameraw)
+  urban_region_id_ref <- ncvar_get(ff,"URBAN_REGION_ID")
   thick_roof_ref <- ncvar_get(ff,"THICK_ROOF")
   thick_wall_ref <- ncvar_get(ff,"THICK_WALL")
   wtroad_perv_ref <- ncvar_get(ff,"WTROAD_PERV")
@@ -339,6 +359,9 @@ if (llc) {
   alb_wall_dif_ref <- ncvar_get(ff,"ALB_WALL_DIF")
   wtlunit_roof_ref <- ncvar_get(ff,"WTLUNIT_ROOF")
   nc_close(ff)
+
+  urban_region_id_mod <- urban_region_id_ref
+  urban_region_id_mod[which(urban_region_id_ref==0)] <- 1 # check urbanid
 
   # calculate median of every column
   medianarrN0 <- function(var) {
@@ -389,6 +412,7 @@ if (llc) {
   wtlunit_roof_mod <- medianarrN0(wtlunit_roof_ref)
 
   ff <- nc_open(filenamenew,write=TRUE)
+  buffer <- ncvar_put(ff,"URBAN_REGION_ID",urban_region_id_mod)
   buffer <- ncvar_put(ff,"THICK_ROOF",thick_roof_mod)
   buffer <- ncvar_put(ff,"THICK_WALL",thick_wall_mod)
   buffer <- ncvar_put(ff,"WTROAD_PERV",wtroad_perv_mod)
@@ -417,6 +441,8 @@ if (llc) {
   buffer <- ncvar_put(ff,"WTLUNIT_ROOF",wtlunit_roof_mod)
   nc_close(ff)
 
+  print("Wrote urban parameter into surface-file")
+
  } # if lurb
 
  } # lhomllc
@@ -438,5 +464,6 @@ if (llc) {
  buffer <- ncvar_put(ff,"PCT_CFT",pct_cft_new)
  nc_close(ff)
 
+ print("Wrote land cover into surface-file")
 
 } # llc
