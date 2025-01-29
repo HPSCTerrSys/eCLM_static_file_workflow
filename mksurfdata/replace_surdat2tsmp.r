@@ -323,7 +323,7 @@ if (llc) {
    if (isumpft == 0){
      pct_nat_pft_new[ii,1] <- 100
    } else {
-     pct_nat_pft_new[ii,] <- pct_nat_pft_new[ii,]/isumcft*100
+     pct_nat_pft_new[ii,] <- pct_nat_pft_new[ii,]/isumpft*100
    } # if sumpft
  } # for ii
 
