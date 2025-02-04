@@ -18,6 +18,7 @@ module load netCDF-Fortran/4.6.1
 module load PnetCDF/1.12.3
 module load cURL/8.0.1
 #module load Szip/.2.1.1 
+module load Perl/5.36.1
 module load Python/3.11.3
 #module load NCO/5.1.3
 module load CMake/3.26.3
