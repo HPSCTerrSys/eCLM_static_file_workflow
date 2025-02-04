@@ -57,7 +57,7 @@ The python script `scrip_mesh.py` can create SCRIP files including the calculati
 It takes command line arguments like this:
 
 ```
-python3 scrip_mesh.py --ifile EURregLonLat01deg_1204x548_grid_inclbrz_v2.nc --ofile cordex_SCRIP.nc --oformat SCRIP
+./scrip_mesh.py --ifile EURregLonLat01deg_1204x548_grid_inclbrz_v2.nc --ofile cordex_SCRIP.nc --oformat SCRIP
 ```
 
 `--help` provides additional information.
@@ -67,7 +67,7 @@ The best practice is to transform already existing ICON gridfiles to the SCRIP f
 This can be done with the python script [`ICON_SCRIP.py`](mkmapgrids/ICON_SCRIP.py):
 
 ```
-python3 ICON_SCRIP.py --ifile EUR-R13B05_199920_grid_inclbrz_v2.nc --ofile EUR-R13B05_199920_grid_SCRIP.nc
+./ICON_SCRIP.py --ifile EUR-R13B05_199920_grid_inclbrz_v2.nc --ofile EUR-R13B05_199920_grid_SCRIP.nc
 ```
 
 Input files can be found in the DETECT CentralDB below `/p/largedata2/detectdata/CentralDB/projects/z04/detect_grid_specs/`.
@@ -89,7 +89,9 @@ This will create regridding and netCDF mapping files in the current directory.
 
 ### ICON grid
 
-Experience has shown that conservative remapping does not always work for ICON grids. As an alternative you can adapt `runscript_mkmapdata.sh`. Change  `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script.
+Experience has shown that conservative remapping does not always work for ICON grids.
+As an alternative you can adapt `runscript_mkmapdata.sh`.
+Change `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script.
 
 ## Creation of domain files
 
@@ -102,7 +104,7 @@ Then compile `src/gen_domain.F90` with
 gfortran -o gen_domain src/gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
 ```
 
-After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid, e.g. `EUR-11`.
+After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a string with the name of your grid, e.g. `EUR-11`.
 The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask.
 
 ```
@@ -117,15 +119,10 @@ The created domain file will later be modified.
 
 The surface creation tool is found under `./mksurfdata/`.
 You have to compile it with gmake in src-directory.
-The essential modules you need to load are intel and netCDF-Fortran.
-You still need to export (e.g. for jsc machines)
+The required modules Intel and netCDF-Fortran are loaded by `jsc.2024_Intel.sh`.
 
-```
-export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
-export INC_NETCDF=${EBROOTNETCDFMINFORTRAN}/include
-```
+After compilation, modify corresponding paths and execute
 
-After compilation modify corresponding pathes and execute
 ```
 export GRIDNAME=EUR-11
 export CDATE=`date +%y%m%d`
