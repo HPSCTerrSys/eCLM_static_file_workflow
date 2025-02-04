@@ -22,6 +22,8 @@ the necessary compilations in this repository can be performed consistently. It 
 ## Creation of gridfile
 
 First, we need to create a gridfile that describes our simulation domain.
+The simulation domain is the EURO-CORDEX pan-European domain, which at high latitudes, for the Earth's canonical curvilinear grid, has significant convergence of the zonal dimension with increasing latitude.
+Therefore we *rotate* the grid (of a same size) centred at the equator to the pan-European domain.
 
 At the moment SCRIP generation from **curvilinear grids** can be done and is tested to work with the NCAR Command Language (NCL), even though it is [deprecated](https://www.ncl.ucar.edu/open_letter_to_ncl_users.shtml).
 NCL can be installed through Conda.
@@ -55,7 +57,7 @@ The python script `scrip_mesh.py` can create SCRIP files including the calculati
 It takes command line arguments like this:
 
 ```
-python3 scrip_mesh.py --ifile cordex_grid.nc --ofile cordex_SCRIP.nc --oformat SCRIP
+python3 scrip_mesh.py --ifile EURregLonLat01deg_1204x548_grid_inclbrz_v2.nc --ofile cordex_SCRIP.nc --oformat SCRIP
 ```
 
 `--help` provides additional information.
@@ -83,6 +85,8 @@ Then start the creation of the weights with
 sbatch runscript_mkmapdata.sh
 ```
 
+This will create regridding and netCDF mapping files in the current directory.
+
 ### ICON grid
 
 Experience has shown that conservative remapping does not always work for ICON grids. As an alternative you can adapt `runscript_mkmapdata.sh`. Change  `-m conserve` to `-m bilinear` and add the options `--src_loc center` `--dst_loc center` inside the script.
@@ -91,14 +95,14 @@ Experience has shown that conservative remapping does not always work for ICON g
 
 The CIME submodule under `./gen_domain_files/` generates the domain files for CLM.
 This repository contains a simplified version of `gen_domain` which is easier to compile on JSC machines and you do not need the CIME repository.
-To compile it go to  the `src/` directory with the loaded modules imkl, netCDF and netCDF-Fortran (all provided by `jsc.2024_Intel.sh`).
-Then compile with
+Required modules are imkl, netCDF and netCDF-Fortran (all provided by `jsc.2024_Intel.sh`).
+Then compile `src/gen_domain.F90` with
 
 ```
-gfortran -o ../gen_domain gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
+gfortran -o gen_domain src/gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
 ```
 
-After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid.
+After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a sting with the name of your grid, e.g. `EUR-11`.
 The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask.
 
 ```
@@ -111,7 +115,10 @@ The created domain file will later be modified.
 
 ## Creation of surface file
 
-The surface creation tool is found under `./mksurfdata_map/`. You have to compile it with make in src-directory. The essential modules you need to load are intel and netCDF-Fortran. You still need to export (e.g. for jsc machines)
+The surface creation tool is found under `./mksurfdata/`.
+You have to compile it with gmake in src-directory.
+The essential modules you need to load are intel and netCDF-Fortran.
+You still need to export (e.g. for jsc machines)
 
 ```
 export LIB_NETCDF=${EBROOTNETCDFMINFORTRAN}/lib
@@ -122,7 +129,7 @@ After compilation modify corresponding pathes and execute
 ```
 export GRIDNAME=EUR-11
 export CDATE=`date +%y%m%d`
-export CSMDATA=/p/scratch/cslts/hartick1/CTSM/tools/mkmapdata/
+export CSMDATA=../mkmapdata/
 
 # generate surfdata
 ./mksurfdata.pl -r usrspec -usr_gname $GRIDNAME -usr_gdate $CDATE -l $CSMDATA -allownofile -y 2005 -hirespft

@@ -4,9 +4,8 @@
 module --force purge
 module use $OTHERSTAGES
 module load Stages/2024
-module load Intel/2023.2.1
+module load GCC/12.3.0
 module load ParaStationMPI/5.9.2-1
-module load ESMF/8.5.0
 #
 module load Hypre/2.29.0
 module load Silo/4.11
