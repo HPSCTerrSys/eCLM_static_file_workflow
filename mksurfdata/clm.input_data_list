@@ -1,2 +1,2 @@
 #! /bin/csh -f
-set CSMDATA = ../mkmapdata/
+set CSMDATA = ../mkmapdata
