@@ -1,2 +1,2 @@
 #! /bin/csh -f
-set CSMDATA = /p/scratch/cslts/poll1/rawdata/clm5/rawdata/clm5/rawdata
+set CSMDATA = ../mkmapdata

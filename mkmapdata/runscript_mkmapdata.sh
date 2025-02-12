@@ -11,8 +11,7 @@
 
 # load enviroment
 
-module load Stages/2022  GCC/11.2.0  ParaStationMPI/5.5.0-1 ESMF/8.2.0
-#ml Stages/2023  Intel/2022.1.0  ParaStationMPI/5.8.0-1 ESMF/8.4.1
+module load Stages/2024 Intel/2023.2.1 ParaStationMPI/5.9.2 ESMF/8.5.0
 module load netCDF
 module load netCDF-Fortran
 
@@ -22,11 +21,11 @@ export ESMFBIN_PATH="${EBROOTESMF}/bin/"
 ### adjust your gridfile here
 export GRIDNAME=EUR-11
 export CDATE=`date +%y%m%d`
-export GRIDFILE=/p/scratch/cslts/poll1/SCRIP_EUR11.nc
+export GRIDFILE="../mkmapgrids/SCRIP_EUR11.nc"
 ###
 
 ### Path to the raw files downloaded for the clm website
-rawpath="/p/scratch/cslts/poll1/rawdata/clm5/mkmapdata/"
+rawpath="/p/scratch/cslts/poll1/data/rawdata/clm5/mkmapdata/"
 ###
 
 OUTPUT="$PWD"
