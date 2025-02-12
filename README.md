@@ -22,6 +22,8 @@ the necessary compilations in this repository can be performed consistently. It 
 ## Creation of gridfile
 
 First, we need to create a gridfile that describes our simulation domain.
+The relevant scripts are in `./mkmapgrids/`.
+The gridfile will contain arrays of longitudes and latitudes of the gridboxes' centres and corners.
 The simulation domain is the EURO-CORDEX pan-European domain, which at high latitudes, for the Earth's canonical curvilinear grid, has significant convergence of the zonal dimension with increasing latitude.
 Therefore we *rotate* the grid (of a same size) centred at the equator to the pan-European domain.
 
@@ -78,7 +80,7 @@ Further information about the DETECT grid specification can be found [here](http
 For the creation of the mapping files of CLM inputdata to our grid use `mkmapdata/runscript_mkmapdata.sh`. Adapt the script to your previously created SCRIP file, to your compute time project and to the path to the CLM mappingdata. The script can be used on JURECA and JUWELS but it is advisable to use the large memory partitions for larger domains. If you don't have access to the CLM mappingdata you have to download it. Use:
 
 ```
-wget --no-check-certificate -i  clm_mappingfiles.txt
+wget --no-check-certificate -i clm_mappingfiles.txt
 ```
 Then start the creation of the weights with
 ```
@@ -104,7 +106,7 @@ Then compile `src/gen_domain.F90` with
 gfortran -o gen_domain src/gen_domain.F90 -mkl -I${INC_NETCDF} -lnetcdff -lnetcdf
 ```
 
-After the compilation you can execute `gen_domain` with $MAPFILE being of the mapping files created before and $GRIDNAME being a string with the name of your grid, e.g. `EUR-11`.
+After the compilation you can execute `gen_domain` with $MAPFILE being one of the mapping files created in the step before (in `mkmapdata/`) and $GRIDNAME being a string with the name of your grid, e.g. `EUR-11`.
 The choice of $MAPFILE does not influence the lat- and longitude values in the domain file but can influence the land/sea mask.
 
 ```
@@ -112,8 +114,6 @@ The choice of $MAPFILE does not influence the lat- and longitude values in the d
 ```
 
 The created domain file will later be modified.
-
-
 
 ## Creation of surface file
 
@@ -124,9 +124,9 @@ The required modules Intel and netCDF-Fortran are loaded by `jsc.2024_Intel.sh`.
 After compilation, modify corresponding paths and execute
 
 ```
-export GRIDNAME=EUR-11
-export CDATE=`date +%y%m%d`
-export CSMDATA=../mkmapdata/
+export GRIDNAME="EUR-11"
+export CDATE="`date +%y%m%d`"   # should match mapping files creation date
+export CSMDATA="../mkmapdata/"
 
 # generate surfdata
 ./mksurfdata.pl -r usrspec -usr_gname $GRIDNAME -usr_gdate $CDATE -l $CSMDATA -allownofile -y 2005 -hirespft
